@@ -445,6 +445,7 @@ extension CodeScannerView.ScannerViewController: AVCaptureMetadataOutputObjectsD
               !didFinishScanning,
               !isCapturing,
               let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
+              let boundingRect = previewLayer.transformedMetadataObject(for: metadataObject)?.bounds,
               let stringValue = readableObject.stringValue else {
 
             return
@@ -452,7 +453,7 @@ extension CodeScannerView.ScannerViewController: AVCaptureMetadataOutputObjectsD
 
         handler = { [weak self] image in
             guard let self else { return }
-            let result = ScanResult(string: stringValue, type: readableObject.type, image: image, corners: readableObject.corners)
+            let result = ScanResult(string: stringValue, type: readableObject.type, source: .camera, image: image, corners: readableObject.corners, boundingRect: boundingRect)
 
             switch parentView.scanMode {
             case .once:
@@ -530,7 +531,7 @@ extension CodeScannerView.ScannerViewController: UIImagePickerControllerDelegate
                 feature.topLeft
             ]
 
-            let result = ScanResult(string: qrCodeLink, type: .qr, image: qrcodeImg, corners: corners)
+            let result = ScanResult(string: qrCodeLink, type: .qr, source: .gallery, image: qrcodeImg, corners: corners, boundingRect: feature.bounds)
             found(result)
         }
     }
